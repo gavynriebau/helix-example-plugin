@@ -27,7 +27,6 @@ fn helix_log(msg: &str) {
 
 #[no_mangle]
 pub extern "C" fn allocate(size: usize) -> *mut c_void {
-    helix_log(&format!("allocate called with size: {}", size));
     let mut buffer = Vec::with_capacity(size);
     let pointer = buffer.as_mut_ptr();
     mem::forget(buffer);
@@ -37,11 +36,6 @@ pub extern "C" fn allocate(size: usize) -> *mut c_void {
 
 #[no_mangle]
 pub extern "C" fn deallocate(pointer: *mut c_void, capacity: usize) {
-    helix_log(&format!(
-        "deallocate called with pointer '{:?}' and capacity '{}'",
-        pointer, capacity
-    ));
-
     unsafe {
         let _ = Vec::from_raw_parts(pointer, 0, capacity);
     }
