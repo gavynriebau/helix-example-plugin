@@ -63,3 +63,11 @@ pub extern "C" fn handle_event(pointer: *mut u8, len: usize) {
         }
     }
 }
+
+#[no_mangle]
+pub extern "C" fn on_resize(cols: u32, rows: u32) {
+    helix_log(&format!(
+        "Received resize event with cols '{}' and rows '{}'",
+        cols, rows
+    ));
+}
