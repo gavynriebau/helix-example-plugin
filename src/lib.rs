@@ -1,11 +1,5 @@
-use protobuf::Message;
 use std::mem;
 use std::os::raw::{c_char, c_void};
-
-use crate::generated::messages::event::EventType;
-use crate::generated::messages::{Event, KeyEvent};
-
-mod generated;
 
 #[link(wasm_import_module = "helix")]
 extern "C" {
@@ -42,20 +36,20 @@ pub extern "C" fn deallocate(pointer: *mut c_void, capacity: usize) {
 }
 
 #[no_mangle]
-pub extern "C" fn handle_event(pointer: *mut u8, len: usize) {
-    let bytes = unsafe { Vec::from_raw_parts(pointer, len, len) };
-    let event = Event::parse_from_bytes(&bytes).unwrap();
-    let event_type: EventType = event.event_type.enum_value().unwrap();
+pub extern "C" fn on_start() {
+    helix_log("on_start called");
+}
 
-    match event_type {
-        EventType::PLUGIN_STARTED => {
-            helix_log("Received PLUGIN_STARTED event");
-        }
-        EventType::KEY_EVENT => {
-            let key_event: KeyEvent = KeyEvent::parse_from_bytes(&event.payload).unwrap();
-            helix_log(&format!("Received KEY_EVENT: {:#?}", key_event));
-        }
-    }
+#[no_mangle]
+pub extern "C" fn on_key_press(pointer: *mut c_char, len: usize) {
+    let event: String = unsafe { String::from_raw_parts(pointer as *mut u8, len, len) };
+    helix_log(&format!("on_key_press '{}'", event));
+}
+
+#[no_mangle]
+pub extern "C" fn on_mouse_event(pointer: *mut c_char, len: usize) {
+    let event: String = unsafe { String::from_raw_parts(pointer as *mut u8, len, len) };
+    helix_log(&format!("on_mouse_event '{}'", event));
 }
 
 #[no_mangle]
